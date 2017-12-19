@@ -113,7 +113,7 @@ def create_maint_plan(host_name):
     #location = URL + '/v1/maintenance'
     payload = {'expand': 'system'}
     insights_request = InsightsRequest(location,payload)
-    plan = {'name' : 'mi_plan'}
+    plan = {'name' : 'my_plan'}
 
     json_data = insights_request.get_insights()
     if json_data is not None:
@@ -124,7 +124,6 @@ def create_maint_plan(host_name):
         print(location)
         print(plan)
         insights_request.location = URL + '/v1/maintenance'
-        print('cambiando location a ' + location)
         insights_request.data = json.dumps(plan)
         result = insights_request.post_insights()
         if not result:
