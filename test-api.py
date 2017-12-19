@@ -13,7 +13,7 @@ URL = "https://access.redhat.com/r/insights"
 # URL for the API to your deployed insights account
 ACCOUNT_API = "%s/v1/account/" % URL
 SYS_API = "%s/v1/groups" % URL
-# Default credentials to login to Insights Account
+# Default credentials to login to your Insights Account, please change
 USERNAME = "changeme"
 PASSWORD = "changeme"
 SSL_VERIFY = True
@@ -71,11 +71,29 @@ class InsightsRequest:
 
     def _check_http_response(self, result):
         if not result.ok:
-            print('HTTP Error found!!! \t' + ' CODE: ' + str(result.status_code) + '\n\t REASON: ' + result.reason)
+            print('HTTP Error found!!! \n' + ' CODE: ' + str(result.status_code) + '\n REASON: ' + result.reason)
         return result.ok
 
 def cute_output(insights_request):
+    """
+    Prints desired values of the object in a nicer form
+    :param insights_request:
+    :return:
+    """
+    json_report = insights_request.get_insights()
 
+    print(json_report)
+    if not json_report:
+        print('Error ocurred, unable to print!!!')
+    else:
+        for groups in json_report:
+            print('GROUP: ' + groups['display_name'])
+            for systems in groups['systems']:
+                print('\n\t\t Host name: ' + systems['hostname'])
+                print('\n\t\t Product: ' + systems['product'])
+                print('\n\t\t Type: ' + systems['type'])
+                print('\n\t\t Registered at Insights: ' + systems['created_at'])
+                print('\n\t\t Last checked at Insights: ' + systems['last_check_in'] + '\n\n')
 
 def clean_empty_group(id):
     """
@@ -121,28 +139,26 @@ def main():
     exist, exit out.
     """
 
-
     payload = {'include': 'systems'}
     insights_request = InsightsRequest(SYS_API, payload)
     cute_output(insights_request)
-    """print(result)
-    print ("Grupos: ")
-    for groups in result:
-        print('\t' + groups['display_name'])
-        if not groups['systems']:
-            print('ELIMINANDO GRUPO: ' + groups['display_name'])
-            clean_empty_groups(groups['id'])
-        for sistemas in groups['systems']:
-            print('\t\t' + sistemas['hostname'])
-            print('\t' + sistemas['product'])
-            print('\t' + sistemas['type'])
-            print('\t' + sistemas['last_check_in'])
+
+    groups = insights_request.get_insights()
+    for elem in groups:
+        if not elem['systems']:
+            print('Deleting empty group ' + elem['display_name'])
+            clean_empty_group(elem['id'])
+
     payload = {'expand': 'system'}
+    insights_request = InsightsRequest(URL + '/v2/reports', payload)
+    reports = create_maint_plan(insights_request)
+    print(reports)
+    """
     result = get_json(URL + '/v2/reports', payload)
     print(result)
     for elem in result['resources']:
         print('Report: ' + str(elem['id']) + ' Rule id: ' + str(elem['rule_id']) + '\tSystem: ' + str(elem['system']['hostname']))
-"""
+    """
     #create_maint_plan('gherkin')
 if __name__ == "__main__":
     main()
