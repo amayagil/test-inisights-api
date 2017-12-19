@@ -14,8 +14,8 @@ URL = "https://access.redhat.com/r/insights"
 ACCOUNT_API = "%s/v1/account/" % URL
 SYS_API = "%s/v1/groups" % URL
 # Default credentials to login to Insights Account
-USERNAME = "amaya.gil"
-PASSWORD = "ba58o35s"
+USERNAME = "changeme"
+PASSWORD = "changeme"
 SSL_VERIFY = True
 POST_HEADERS = {'content-type': 'application/json'}
 
@@ -75,7 +75,7 @@ class InsightsRequest:
         return result.ok
 
 def cute_output(insights_request):
-    
+
 
 def clean_empty_group(id):
     """
