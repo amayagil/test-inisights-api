@@ -82,7 +82,6 @@ def cute_output(insights_request):
     """
     json_report = insights_request.get_insights()
 
-    print(json_report)
     if not json_report:
         print('Error ocurred, unable to print!!!')
     else:
@@ -121,8 +120,6 @@ def create_maint_plan(host_name):
             if host_name == report['system']['hostname']:
                 plan['reports'].append(report['id'])
                 plan['add'].append(report['rule_id'])
-        print(location)
-        print(plan)
         insights_request.location = URL + '/v1/maintenance'
         insights_request.data = json.dumps(plan)
         result = insights_request.post_insights()
@@ -143,16 +140,22 @@ def main():
     cute_output(insights_request)
 
     groups = insights_request.get_insights()
+    found = False
+
     for elem in groups:
         if not elem['systems']:
+            found = True
             print('Deleting empty group ' + elem['display_name'])
             clean_empty_group(elem['id'])
+    if not found:
+        print('No empty groups found, nothing to delete!!!')
 
     payload = {'expand': 'system'}
     insights_request = InsightsRequest(URL + '/v2/reports', payload)
     reports = create_maint_plan(insights_request)
-    print(reports)
     """
+    print(reports)
+
     result = get_json(URL + '/v2/reports', payload)
     print(result)
     for elem in result['resources']:
